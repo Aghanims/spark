@@ -1,0 +1,25 @@
+name: Flaky Test Check
+on: [push, pull_request]
+
+jobs:
+  test-flaky:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 8
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+
+      - name: Verify Java version
+        run: java -version
+
+      - name: Build project (skip tests)
+        run: mvn clean install -DskipTests
+
+      - name: Run NonDex flaky test
+        run: mvn edu.illinois:nondex-maven-plugin:2.1.1:nondex \
+              -Dtest=spark.RequestTest#testQueryParams \
+              -DnondexRuns=100
